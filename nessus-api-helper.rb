@@ -136,17 +136,21 @@ Options:
       req['X-ApiKeys'] = "accessKey=#{ENV['NESSUS_ACCESS_KEY']}; secretKey=#{ENV['NESSUS_SECRET_KEY']}"
       
       resp, data = http.request(req)
-
-      binding.pry
       
       open("#{options[:directory]}/#{filename}", "wb") do |file|
         file.write(resp.body)
       end
       
       if resp.code.eql? '200'
-        #print "Data: " +  JSON.pretty_generate(JSON.parse(resp.body.to_s))
+        puts " downloaded #{filename} to #{options[:directory]}"
+      elsif resp.code.eql? '409'
+        # the server isn't ready yet, it is
+        # still exporting the file
+        sleep(1)
+        print '.'
+        get_file(options, path, filename)
       else
-        puts "Error: " + resp.code.to_s + "\n" + resp.body
+        puts "Error: " + resp.code.to_s + ": " + resp.body
       end
     end
 
@@ -168,18 +172,16 @@ Options:
     # it will return a file id that we can issue a GET on
     scans['scans'].each do | scan |
 
-      puts "Name: #{scan['name']}"
-      puts "Last mod date: #{Time.at(scan['last_modification_date'])}"
+      #puts "Name: #{scan['name']}"
+      #puts "Last mod date: #{Time.at(scan['last_modification_date'])}"
       
       path = "/scans/#{scan['id']}/export"
-
       file = post_request(options, path, "format=csv")
 
-      binding.pry
-      
       # now grab the file and save it
       path = "/scans/#{scan['id']}/export/#{file['file']}/download"
-      get_file(options, path, "#{scan['name'].gsub(/\s/, '_')}_#{scan['last_modification_date']}.csv")
+      filename = "#{scan['name'].gsub(/\s/, '_')}_#{scan['last_modification_date']}.csv"
+      get_file(options, path, filename)
       
     end
   end
