@@ -1,4 +1,5 @@
-## Ruby program to help interacting with the Nessus 6 API
+## Description
+Ruby program to help interacting with the Nessus 6 API. Currently only supports downloading the most recent scan file in CSV format for all scans in a folder.
 
 ### Setup environment variables
 ```
@@ -20,7 +21,7 @@ Examples:
 Options:
     -d, --directory DIR              Where to put the downloaded files
     -p, --port PORT                  Port the Nessus server is running on
-    -f, --folder ID                  Folder id (integer) to search for scans
+    -f, --folder ID                  Nessus "folder id" (integer) to search for scans
     -l, --last_modified HH:MM        Time since a scan was last modified, can be any string that DateTime.parse will accept
     -v, --verbose                    Show things like risk level in the output
 ```
